@@ -1,0 +1,225 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Prediction</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a href="#" onClick="return false;">
+                <i class="fas fa-home"></i> Prediction</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div class="card">
+          <div class="body">
+            <div id="plist" class="people-list">
+              <!-- <div class="form-line m-b-15">
+                <input type="text" class="form-control" placeholder="Search..." />
+              </div> -->
+              <div class="tab-content">
+                <div id="chat_user"  [perfectScrollbar]>
+                  <form class="register-form m-4" [formGroup]="register" (ngSubmit)="onRegister()">
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>Company code</mat-label>
+                          <input matInput formControlName="first" required>
+                          <mat-error *ngIf="register.get('first').hasError('required')">
+                            Company code error
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>Vendor name</mat-label>
+                          <input matInput formControlName="last">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>Vendor code</mat-label>
+                          <input matInput formControlName="last">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>Invoice number</mat-label>
+                          <input matInput formControlName="last">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width mb-3" appearance="outline">
+                          <mat-label>Invoice date</mat-label>
+                          <input matInput [matDatepicker]="picker" formControlName="last" required>
+                          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                          <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>Invoice currency</mat-label>
+                          <input matInput formControlName="last">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>Net amount</mat-label>
+                          <input matInput formControlName="last">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>VAT % and code</mat-label>
+                          <input matInput formControlName="last">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                        <button class="mr-3" mat-raised-button color="primary">Confirm</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+        <div class="card" style="height: 800px;">
+          <div *ngIf="!showPdf">
+          <div class="container" appDnd (fileDropped)="onFileDropped($event)">
+            <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+            <img src="assets/images/drag-drop/ic-upload-file.svg" alt="">
+            <h3>Drag and drop invoice here</h3>
+            <h3>or</h3>
+            <label for="fileDropRef">Browse for invoice</label>
+          </div>
+          <div class="files-list">
+            <div class="single-file" *ngFor="let file of files; let i = index">
+              <img src="assets/images/drag-drop/ic-file.svg" width="45px" alt="file">
+              <div class="info" (click)="openFile(i)">
+                <h4 class="name">
+                  {{ file?.name }}
+                </h4>
+                <p class="size">
+                  {{ formatBytes(file?.size) }}
+                </p>
+                <app-progress [progress]="file?.progress"></app-progress>
+              </div>
+              <img src="assets/images/drag-drop/ic-delete-file.svg" class="delete" width="20px" alt="file" (click)="deleteFile(i)">
+            </div>
+          </div>
+        </div>
+          <div class="pdf-container" *ngIf="showPdf">
+            <pdf-viewer [src]="src"
+                        [original-size]="false"
+            ></pdf-viewer>
+          </div>
+          <!-- <div class="page-center">  
+            <i class="fa fa-cloud" aria-hidden="true"></i>
+            <h1>Upload Your <strong>Files</strong></h1>
+            <a class="upload" id="call-to-action"><span>Select Your Upload</span></a>
+            <form id="upload" method="post" action="upload.php" enctype="multipart/form-data">
+              <div id="drop">
+              <input type="file" name="upl"  multiple class="upload-hidden">
+                </div>
+              </form>
+          </div> -->
+
+
+          <!-- <div class="chat">
+            <div class="chat-header clearfix">
+              <img src="assets/images/user/user2.jpg" alt="avatar">
+              <div class="chat-about">
+                <div class="chat-with">Maria Smith</div>
+                <div class="chat-num-messages">2 new messages</div>
+              </div>
+            </div>
+            <div class="chat-history" id="chat-conversation" style="position: relative; max-height: 449px;"
+              [perfectScrollbar]>
+              <ul>
+                <li class="clearfix">
+                  <div class="message-data text-right">
+                    <span class="message-data-time">10:10 AM, Today
+                    </span>
+                    &nbsp; &nbsp;
+                    <span class="message-data-name">Maria</span>
+                  </div>
+                  <div class="message other-message float-right"> Hi Robert , how are you? How is
+                    your work going on? </div>
+                </li>
+                <li>
+                  <div class="message-data">
+                    <span class="message-data-name">Robert </span>
+                    <span class="message-data-time">10:12 AM, Today</span>
+                  </div>
+                  <div class="message my-message">
+                    <p>Its good. We completed almost all task assign by our manager.</p>
+                    <div class="row">
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="message-data">
+                    <span class="message-data-name">Robert </span>
+                    <span class="message-data-time">10:12 AM, Today</span>
+                  </div>
+                  <div class="message my-message">
+                    <p>How are you feel today? What's about vacation?.</p>
+                    <div class="row">
+                    </div>
+                  </div>
+                </li>
+                <li class="clearfix">
+                  <div class="message-data text-right">
+                    <span class="message-data-time">10:10 AM, Today
+                    </span>
+                    &nbsp; &nbsp;
+                    <span class="message-data-name">Maria</span>
+                  </div>
+                  <div class="message other-message float-right"> I am good, We think for next
+                    weekend.
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="chat-message clearfix">
+              <div class="form-group">
+                <div class="form-line">
+                  <mat-form-field class="example-full-width">
+                    <input matInput placeholder="Enter text here..">
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="chat-upload">
+                <button mat-mini-fab class="bg-deep-orange mr-2"> <i class="material-icons">attach_file</i></button>
+                <button mat-mini-fab class="bg-deep-orange"> <i class="material-icons">insert_emoticon</i></button>
+              </div>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
