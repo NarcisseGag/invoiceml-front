@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { PredictionComponent } from './admin/prediction/prediction.component';
+import { PredictionListComponent } from './admin/prediction-list/prediction-list.component';
+import { ResizableDraggableComponent } from './admin/resizable-draggable/resizable-draggable.component';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,7 +34,7 @@ import {
   HttpClient,
 } from '@angular/common/http';
 import { DndDirective } from './directives/dnd.directive';
-import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { PredictionService } from './service/prediction.service';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
@@ -53,6 +55,8 @@ export function createTranslateLoader(http: HttpClient): any {
     AuthLayoutComponent,
     MainLayoutComponent,
     PredictionComponent,
+    PredictionListComponent,
+    ResizableDraggableComponent,
     DndDirective
   ],
   imports: [
@@ -62,7 +66,6 @@ export function createTranslateLoader(http: HttpClient): any {
     HttpClientModule,
     PerfectScrollbarModule,
     ClickOutsideModule,
-    PdfViewerModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -84,6 +87,7 @@ export function createTranslateLoader(http: HttpClient): any {
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     fakeBackendProvider,
+    PredictionService,
   ],
   entryComponents: [],
   bootstrap: [AppComponent],

@@ -54,11 +54,11 @@ export class MainComponent implements OnInit {
     this.areaChartOptions = {
       series: [
         {
-          name: 'new students',
+          name: 'Imported',
           data: [31, 40, 28, 51, 42, 85, 77],
         },
         {
-          name: 'old students',
+          name: 'Exported with review',
           data: [11, 32, 45, 32, 34, 52, 41],
         },
       ],

@@ -5,7 +5,6 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './core/guard/auth.guard';
 import { Role } from './core/models/role';
-import { PredictionComponent } from './admin/prediction/prediction.component';
 const routes: Routes = [
   {
     path: '',

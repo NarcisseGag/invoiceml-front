@@ -1,90 +1,67 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import 'leader-line';
+import { BoundingBox } from 'src/app/models/bounding-box';
+import { PredictionResult } from 'src/app/models/prediction-result';
+import { PredictionService } from 'src/app/service/prediction.service';
+declare let LeaderLine: any;
+
 @Component({
   selector: 'app-prediction',
   templateUrl: './prediction.component.html',
   styleUrls: ['./prediction.component.scss']
 })
-export class PredictionComponent {
+export class PredictionComponent { //  implements AfterViewInit
   @ViewChild("fileDropRef", { static: false }) fileDropEl: ElementRef;
   files: any[] = [];
-  src = "https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf";
   showPdf = false;
 
+
+  @ViewChild("companyCodeLayer", { static: false }) companyCodeLayerCanvas: ElementRef;
+  private context: CanvasRenderingContext2D;
+  private companyCodeLayerCanvasElement: any;
+
+  public imgWidth: number;
+  public imgHeight: number;
+  public url: string;
+  public image;
+
+  @ViewChild('companyCodeStartElement', { read: ElementRef }) companyCodeStartElement: ElementRef;
+  @ViewChild('companyCodeEndElement', { read: ElementRef }) companyCodeEndElement: ElementRef;
+
+  // ngAfterViewInit() {
+  //    const line = new LeaderLine(this.companyCodeStartElement.nativeElement, this.companyCodeEndElement.nativeElement);
+  // }
 
   hideRequiredControl = new FormControl(false);
   // constructor() {}
 
   // Form 1
-  register: FormGroup;
+  predictionForm: FormGroup;
   hide = true;
-  // Form 2
-  secondForm: FormGroup;
   hide2 = true;
-  // Form 3
-  thirdForm: FormGroup;
   hide3 = true;
-  constructor(private fb: FormBuilder) {
-    this.initForm();
-    this.initSecondForm();
-    this.initThirdForm();
+  constructor(private fb: FormBuilder, private predictionService: PredictionService) {
+    this.initPredictionForm();
   }
-  initForm() {
-    this.register = this.fb.group({
-      first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
-      last: [''],
-      password: ['', [Validators.required]],
-      email: [
-        '',
-        [Validators.required, Validators.email, Validators.minLength(5)],
-      ],
-      address: [''],
-      city: ['', [Validators.required]],
-      state: ['', [Validators.required]],
-      country: ['', [Validators.required]],
-      termcondition: [false, [Validators.requiredTrue]],
+
+  initPredictionForm() {
+    this.predictionForm = this.fb.group({
+      CompanyCode: [''],
+      Address: [''],
+      VendorName: [''],
+      VendorCode: [''],
+      InvoiceNumber: [''],
+      InvoiceDate: [''],
+      InvoiceCurrency: [''],
+      NetAmount: [''],
+      VatCode: ['']
     });
   }
-  initSecondForm() {
-    this.secondForm = this.fb.group({
-      first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
-      last: [''],
-      password: ['', [Validators.required]],
-      email: [
-        '',
-        [Validators.required, Validators.email, Validators.minLength(5)],
-      ],
-      address: [''],
-      city: ['', [Validators.required]],
-      state: ['', [Validators.required]],
-      country: ['', [Validators.required]],
-      termcondition: [false, [Validators.requiredTrue]],
-    });
-  }
-  initThirdForm() {
-    this.thirdForm = this.fb.group({
-      first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
-      last: [''],
-      password: ['', [Validators.required]],
-      email: [
-        '',
-        [Validators.required, Validators.email, Validators.minLength(5)],
-      ],
-      address: [''],
-      city: ['', [Validators.required]],
-      state: ['', [Validators.required]],
-      country: ['', [Validators.required]],
-      termcondition: [false, [Validators.requiredTrue]],
-    });
-  }
-  onRegister() {
-    console.log('Form Value', this.register.value);
-  }
-  onsecondFormSubmit() {
-    console.log('Form Value', this.secondForm.value);
-  }
-  onThirdFormSubmit() {
-    console.log('Form Value', this.thirdForm.value);
+
+  onpredictionForm() {
+    console.log('Form Value', this.predictionForm.value);
   }
 
   /**
@@ -92,13 +69,6 @@ export class PredictionComponent {
    */
      onFileDropped($event) {
       this.prepareFilesList($event);
-    }
-
-  /**
-   * handle file from browsing
-   */
-     fileBrowseHandler(files) {
-      this.prepareFilesList(files);
     }
 
   /**
@@ -162,7 +132,88 @@ export class PredictionComponent {
     this.files.splice(index, 1);
   }
 
-  openFile(index: number) {
+  /**
+   * handle file from browsing
+   */
+     fileBrowseHandler(event) {
+      // this.prepareFilesList(event.target.files);
+      this.openFile(event);
+    }
+
+    public uploadFile = (files) => {
+      if (files.length === 0) {
+        return;
+      }
+      let fileToUpload = <File>files[0];
+      const formData = new FormData();
+      formData.append('file', fileToUpload, fileToUpload.name);
+      this.predictionService.Save(formData).subscribe(event => {
+          // if (event.type === HttpEventType.UploadProgress)
+            // this.progress = Math.round(100 * event.loaded / event.total);
+          // else if (event.type === HttpEventType.Response) {
+          //   // this.message = 'Upload success.';
+          //   this.onUploadFinished.emit(event.body);
+          // }
+        });
+    }
+
+  openFile(event) {
     this.showPdf = !this.showPdf;
+    this.predictionService.MakePrediction().subscribe((data: PredictionResult) => {
+      this.predictionForm.patchValue(data);
+      // if (event.target.files && event.target.files[0]) {
+      //   const reader = new FileReader();
+      //   reader.readAsDataURL(event.target.files[0]);
+      //   reader.onload = event => {
+      //     this.image = new Image();
+      //     this.image.src = reader.result;
+      //     this.image.onload = () => {
+      //       this.imgWidth = this.image.width;
+      //       this.imgHeight = this.image.height;
+      //       this.showImage();
+      //       this.drawRect(data.BoundingBoxes);
+            
+      //     };
+      //   };
+      // }
+    });
+  }
+
+  showImage() {
+    this.companyCodeLayerCanvasElement = this.companyCodeLayerCanvas.nativeElement;
+    this.context = this.companyCodeLayerCanvasElement.getContext("2d");
+    this.companyCodeLayerCanvasElement.width = this.imgWidth;
+    this.companyCodeLayerCanvasElement.height = this.imgHeight;
+    this.context.drawImage(this.image, 0, 0, this.imgWidth, this.imgHeight);
+    const parent = this;
+    this.companyCodeLayerCanvasElement.addEventListener("mousemove", function(e) {
+      console.log("canvas click");
+      console.log(e);
+      let x = 200;
+      let y = 300; 
+      let w = 400;
+      let h = 500;
+      // if (x <= e.clientX && e.clientX <= x + w && y <= e.clientY && e.clientY <= y + h) {
+      //   parent.drawRect("red");
+      // } else {
+      //   parent.drawRect();
+      // }
+    });
+  }
+
+  drawRect(boundingBoxes: Array<BoundingBox>) {
+    this.context.beginPath();
+    boundingBoxes.forEach((boundingBox: BoundingBox) => {
+        this.context.rect(boundingBox.Left, boundingBox.Top, boundingBox.Width, boundingBox.Height);
+    });
+    // this.context.rect(206,1960,380,39);
+    this.context.lineWidth = 2;
+    this.context.strokeStyle = "#2F72FF";
+    this.context.stroke();
+  }
+
+  clear() {
+    this.showPdf = false;
+    this.predictionForm.reset();
   }
 }

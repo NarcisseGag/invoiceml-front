@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { InConfiguration } from '../core/models/config.interface';
 
 @Injectable({
@@ -6,12 +7,14 @@ import { InConfiguration } from '../core/models/config.interface';
 })
 export class ConfigService {
   public configData: InConfiguration;
+  public apiUrl: string;
 
   constructor() {
     this.setConfigData();
   }
 
   setConfigData() {
+    this.apiUrl = environment.apiUrl;
     this.configData = {
       layout: {
         rtl: true, // options:  true & false

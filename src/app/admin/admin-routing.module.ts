@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { PredictionListComponent } from './prediction-list/prediction-list.component';
 import { PredictionComponent } from './prediction/prediction.component';
 
 const routes: Routes = [
@@ -11,6 +12,10 @@ const routes: Routes = [
   {
     path: 'prediction',
     component: PredictionComponent
+  },
+  {
+    path: 'prediction-list',
+    component: PredictionListComponent
   },
 ];
 
