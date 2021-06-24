@@ -1,12 +1,13 @@
-<div #box class="resizable-draggable" 
-    [style.width.%]="width" 
-    [style.height.%]="height" 
-    [style.transform]="'translate3d('+ left + 'px,' + top + 'px,' + '0px)'"
-    [class.active]="status === 1 || status === 2"
-    (mousedown)="setStatus($event, 2)"
-    (window:mouseup)="setStatus($event, 0)">
-    <div class="resize-action" (mousedown)="setStatus($event, 1)"></div>
-    <!-- <span>{{width | number:'1.0-0'}}px</span>
-    <span>{{height | number:'1.0-0'}}px</span>
-    <span>({{left}}, {{top}})</span> -->
-</div>
+<div id='chat' [style.top.px]='top'  
+                   [style.left.px]='left' 
+                   [style.width.px]='width'
+                   [style.height.px]='height'
+                   (mousedown)='onWindowPress($event)'
+                   (mousemove)='onWindowDrag($event)'
+                   (click)='dialog()'
+                   style="position: absolute; left: 0; top: 0; z-index: 0;">
+        <div (mousedown)='onCornerClick($event, topLeftResize)' id='chat-top-left-resize' class='chat-corner-resize'></div>
+        <div (mousedown)='onCornerClick($event, topRightResize)' id='chat-top-right-resize' class='chat-corner-resize'></div>
+        <div (mousedown)='onCornerClick($event, bottomLeftResize)' id='chat-bottom-left-resize' class='chat-corner-resize'></div>
+        <div (mousedown)='onCornerClick($event, bottomRightResize)' id='chat-bottom-right-resize' class='chat-corner-resize'></div>
+    </div>

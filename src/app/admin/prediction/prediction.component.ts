@@ -5,6 +5,7 @@ import 'leader-line';
 import { BoundingBox } from 'src/app/models/bounding-box';
 import { PredictionResult } from 'src/app/models/prediction-result';
 import { PredictionService } from 'src/app/service/prediction.service';
+import { environment } from 'src/environments/environment';
 declare let LeaderLine: any;
 
 @Component({
@@ -26,6 +27,8 @@ export class PredictionComponent { //  implements AfterViewInit
   public imgHeight: number;
   public url: string;
   public image;
+
+  public predictionResult: PredictionResult;
 
   @ViewChild('companyCodeStartElement', { read: ElementRef }) companyCodeStartElement: ElementRef;
   @ViewChild('companyCodeEndElement', { read: ElementRef }) companyCodeEndElement: ElementRef;
@@ -136,8 +139,8 @@ export class PredictionComponent { //  implements AfterViewInit
    * handle file from browsing
    */
      fileBrowseHandler(event) {
-      // this.prepareFilesList(event.target.files);
-      this.openFile(event);
+      // this.openFile(event);
+      this.uploadFile(event.target.files);
     }
 
     public uploadFile = (files) => {
@@ -147,20 +150,24 @@ export class PredictionComponent { //  implements AfterViewInit
       let fileToUpload = <File>files[0];
       const formData = new FormData();
       formData.append('file', fileToUpload, fileToUpload.name);
-      this.predictionService.Save(formData).subscribe(event => {
-          // if (event.type === HttpEventType.UploadProgress)
-            // this.progress = Math.round(100 * event.loaded / event.total);
-          // else if (event.type === HttpEventType.Response) {
-          //   // this.message = 'Upload success.';
-          //   this.onUploadFinished.emit(event.body);
-          // }
+      this.predictionService.Save(formData).subscribe((data: PredictionResult) => {
+          this.showPdf = !this.showPdf;
+          this.url = data.ImagePath;
+          this.predictionResult = data;
+          this.predictionForm.patchValue(this.predictionResult);
         });
+    }
+
+    public createImgPath = (serverPath: string) => {
+      const u = `${environment.apiUrl}/${serverPath}`;
+      return u;
     }
 
   openFile(event) {
     this.showPdf = !this.showPdf;
     this.predictionService.MakePrediction().subscribe((data: PredictionResult) => {
-      this.predictionForm.patchValue(data);
+      this.predictionResult = data;
+      this.predictionForm.patchValue(this.predictionResult);
       // if (event.target.files && event.target.files[0]) {
       //   const reader = new FileReader();
       //   reader.readAsDataURL(event.target.files[0]);
@@ -215,5 +222,6 @@ export class PredictionComponent { //  implements AfterViewInit
   clear() {
     this.showPdf = false;
     this.predictionForm.reset();
+    this.predictionResult = null;
   }
 }

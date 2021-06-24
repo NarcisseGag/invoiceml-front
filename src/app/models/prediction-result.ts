@@ -11,5 +11,6 @@ export class PredictionResult {
     InvoiceCurrency: string;
     NetAmount: string;
     VatCode: string;
+    ImagePath: string;
     BoundingBoxes: Array<BoundingBox>;
 }

@@ -5,6 +5,7 @@ import { SharedModule } from './shared/shared.module';
 import { PredictionComponent } from './admin/prediction/prediction.component';
 import { PredictionListComponent } from './admin/prediction-list/prediction-list.component';
 import { ResizableDraggableComponent } from './admin/resizable-draggable/resizable-draggable.component';
+import { DialogComponent } from './admin/dialog/dialog.component';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -57,6 +58,7 @@ export function createTranslateLoader(http: HttpClient): any {
     PredictionComponent,
     PredictionListComponent,
     ResizableDraggableComponent,
+    DialogComponent,
     DndDirective
   ],
   imports: [

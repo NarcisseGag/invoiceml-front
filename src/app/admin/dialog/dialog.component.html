@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>{{data.value}}</h1>
+    <div mat-dialog-content>
+      <p>{{data.prop}}</p>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-mini-fab class="mr-3 reject-button" (click)="reject()">
+            <mat-icon>clear</mat-icon>
+        </button>
+        <button mat-mini-fab color="success" (click)="confirm()">
+            <mat-icon>done</mat-icon>
+        </button>
+    </div>
