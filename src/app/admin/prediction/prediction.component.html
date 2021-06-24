@@ -27,13 +27,13 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Company code</mat-label>
-                          <input matInput formControlName="CompanyCode" required #companyCodeStartElement>
+                          <input matInput formControlName="COMPANYCODE" required #companyCodeStartElement>
                         </mat-form-field>
                       </div>
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Vendor name</mat-label>
-                          <input matInput formControlName="VendorName">
+                          <input matInput formControlName="VENDORNAME">
                         </mat-form-field>
                       </div>
                     </div>
@@ -41,7 +41,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Vendor code</mat-label>
-                          <input matInput formControlName="VendorCode">
+                          <input matInput formControlName="VENDORCODE">
                         </mat-form-field>
                       </div>
                     </div>
@@ -49,7 +49,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Invoice number</mat-label>
-                          <input matInput formControlName="InvoiceNumber">
+                          <input matInput formControlName="INVOICENUMBER">
                         </mat-form-field>
                       </div>
                     </div>
@@ -57,7 +57,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Invoice date</mat-label>
-                          <input matInput formControlName="InvoiceDate">
+                          <input matInput formControlName="INVOICEDATE">
                         </mat-form-field>
                       </div>
                     </div>
@@ -65,7 +65,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Invoice currency</mat-label>
-                          <input matInput formControlName="InvoiceCurrency">
+                          <input matInput formControlName="INVOICECURRENCY">
                         </mat-form-field>
                       </div>
                     </div>
@@ -73,7 +73,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Net amount</mat-label>
-                          <input matInput formControlName="NetAmount">
+                          <input matInput formControlName="NETAMOUNT">
                         </mat-form-field>
                       </div>
                     </div>
@@ -81,7 +81,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>VAT % and code</mat-label>
-                          <input matInput formControlName="VatCode">
+                          <input matInput formControlName="VATCODE">
                         </mat-form-field>
                       </div>
                     </div>
@@ -89,13 +89,13 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Address</mat-label>
-                          <input matInput formControlName="Address">
+                          <input matInput formControlName="ADDRESS">
                         </mat-form-field>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
-                        <button class="mr-3" mat-raised-button color="primary">Confirm</button>
+                        <button class="mr-3" (click)="confirm()" mat-raised-button color="primary">Confirm</button>
                         <button (click)="clear()" type="button" mat-button>Reset</button>
                       </div>
                     </div>
@@ -108,6 +108,12 @@
       </div>
       <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
         <div class="card">
+          
+        <div style="position: relative;">
+          <canvas #companyCodeLayer id="companyCodeLayer"   
+            style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+        </div>
+
           <div *ngIf="!showPdf" style="height: 800px;">
             <div class="container" appDnd (fileDropped)="onFileDropped($event)">
               <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event)" />
@@ -119,10 +125,11 @@
           </div>
           <div class="about-prediction-img" *ngIf="showPdf">
             <img [src]="createImgPath(url)">
-            <!-- <div style="position: relative;">
-              <canvas #companyCodeLayer id="companyCodeLayer" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
-            </div> -->
           </div>
+
+          <!-- <ng-template #template let-option='option' [data]="option.data"></ng-template>
+          <ng-container #vc></ng-container> -->
+
           <div class="box-container" *ngIf="predictionResult && predictionResult.BoundingBoxes">
             <ng-container *ngFor="let item of predictionResult.BoundingBoxes | keyvalue">
               <app-resizable-draggable
@@ -131,8 +138,9 @@
                 [left]="item.value['Left']"
                 [top]="item.value['Top']"
                 [prop]="item.key"
-                [value]="item.value['Value']">
-              </app-resizable-draggable> <!--  id="{{item.key}}" -->
+                [value]="item.value['Value']"
+                (modalResult)="getModalResult($event)">
+              </app-resizable-draggable> <!-- id="{{item.key}}" -->
             </ng-container>
           </div>
         </div>

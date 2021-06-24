@@ -1,5 +1,5 @@
 import { HttpEventType } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import 'leader-line';
 import { BoundingBox } from 'src/app/models/bounding-box';
@@ -33,6 +33,9 @@ export class PredictionComponent { //  implements AfterViewInit
   @ViewChild('companyCodeStartElement', { read: ElementRef }) companyCodeStartElement: ElementRef;
   @ViewChild('companyCodeEndElement', { read: ElementRef }) companyCodeEndElement: ElementRef;
 
+  @ViewChild('template', { read: TemplateRef }) _template: TemplateRef<any>;
+  @ViewChild('vc', {read: ViewContainerRef}) vc: ViewContainerRef;
+
   // ngAfterViewInit() {
   //    const line = new LeaderLine(this.companyCodeStartElement.nativeElement, this.companyCodeEndElement.nativeElement);
   // }
@@ -51,15 +54,15 @@ export class PredictionComponent { //  implements AfterViewInit
 
   initPredictionForm() {
     this.predictionForm = this.fb.group({
-      CompanyCode: [''],
-      Address: [''],
-      VendorName: [''],
-      VendorCode: [''],
-      InvoiceNumber: [''],
-      InvoiceDate: [''],
-      InvoiceCurrency: [''],
-      NetAmount: [''],
-      VatCode: ['']
+      COMPANYCODE: [''],
+      ADDRESS: [''],
+      VENDORNAME: [''],
+      VENDORCODE: [''],
+      INVOICENUMBER: [''],
+      INVOICEDATE: [''],
+      INVOICECURRENCY: [''],
+      NETAMOUNT: [''],
+      VATCODE: ['']
     });
   }
 
@@ -124,18 +127,6 @@ export class PredictionComponent { //  implements AfterViewInit
     }
 
   /**
-   * Delete file from files list
-   * @param index (File index)
-   */
-  deleteFile(index: number) {
-    if (this.files[index].progress < 100) {
-      console.log("Upload in progress.");
-      return;
-    }
-    this.files.splice(index, 1);
-  }
-
-  /**
    * handle file from browsing
    */
      fileBrowseHandler(event) {
@@ -147,14 +138,28 @@ export class PredictionComponent { //  implements AfterViewInit
       if (files.length === 0) {
         return;
       }
-      let fileToUpload = <File>files[0];
+      const fileToUpload = <File>files[0];
       const formData = new FormData();
       formData.append('file', fileToUpload, fileToUpload.name);
-      this.predictionService.Save(formData).subscribe((data: PredictionResult) => {
+      this.predictionService.MakePrediction(formData).subscribe((data: PredictionResult) => {
           this.showPdf = !this.showPdf;
           this.url = data.ImagePath;
           this.predictionResult = data;
-          this.predictionForm.patchValue(this.predictionResult);
+          this.CompanyCode.patchValue(this.predictionResult.CompanyCode);
+          this.Address.patchValue(this.predictionResult.Address);
+          this.VendorName.patchValue(this.predictionResult.VendorName);
+          this.VendorCode.patchValue(this.predictionResult.VendorCode);
+          this.InvoiceNumber.patchValue(this.predictionResult.InvoiceNumber);
+          this.InvoiceCurrency.patchValue(this.predictionResult.InvoiceCurrency);
+          this.InvoiceDate.patchValue(this.predictionResult.InvoiceDate);
+          this.NetAmount.patchValue(this.predictionResult.NetAmount);
+          this.VatCode.patchValue(this.predictionResult.VatCode);
+          // for (let key in this.predictionResult.BoundingBoxes) {
+          //   let value = this.predictionResult.BoundingBoxes[key];
+          //   const view = this._template.createEmbeddedView({option: value});
+          //   this.vc.insert(view);
+          // }
+    
         });
     }
 
@@ -163,11 +168,19 @@ export class PredictionComponent { //  implements AfterViewInit
       return u;
     }
 
-  openFile(event) {
-    this.showPdf = !this.showPdf;
-    this.predictionService.MakePrediction().subscribe((data: PredictionResult) => {
-      this.predictionResult = data;
-      this.predictionForm.patchValue(this.predictionResult);
+    getModalResult(event) {
+      if (event.dataResult === false) {
+        return this.predictionForm.get(event.prop).reset();
+      } else {
+        this.predictionForm.get(event.prop).patchValue(event.dataValue);
+      }
+    }
+
+  // openFile(event) {
+  //   this.showPdf = !this.showPdf;
+  //   this.predictionService.MakePrediction().subscribe((data: PredictionResult) => {
+  //     this.predictionResult = data;
+  //     this.CompanyCode.patchValue(this.predictionResult.CompanyCode);
       // if (event.target.files && event.target.files[0]) {
       //   const reader = new FileReader();
       //   reader.readAsDataURL(event.target.files[0]);
@@ -183,45 +196,97 @@ export class PredictionComponent { //  implements AfterViewInit
       //     };
       //   };
       // }
-    });
-  }
+  //   });
+  // }
 
-  showImage() {
-    this.companyCodeLayerCanvasElement = this.companyCodeLayerCanvas.nativeElement;
-    this.context = this.companyCodeLayerCanvasElement.getContext("2d");
-    this.companyCodeLayerCanvasElement.width = this.imgWidth;
-    this.companyCodeLayerCanvasElement.height = this.imgHeight;
-    this.context.drawImage(this.image, 0, 0, this.imgWidth, this.imgHeight);
-    const parent = this;
-    this.companyCodeLayerCanvasElement.addEventListener("mousemove", function(e) {
-      console.log("canvas click");
-      console.log(e);
-      let x = 200;
-      let y = 300; 
-      let w = 400;
-      let h = 500;
+  // showImage() {
+  //   this.companyCodeLayerCanvasElement = this.companyCodeLayerCanvas.nativeElement;
+  //   this.context = this.companyCodeLayerCanvasElement.getContext("2d");
+  //   this.companyCodeLayerCanvasElement.width = this.imgWidth;
+  //   this.companyCodeLayerCanvasElement.height = this.imgHeight;
+  //   this.context.drawImage(this.image, 0, 0, this.imgWidth, this.imgHeight);
+  //   const parent = this;
+  //   this.companyCodeLayerCanvasElement.addEventListener("mousemove", function(e) {
+  //     console.log("canvas click");
+  //     console.log(e);
+  //     let x = 200;
+  //     let y = 300; 
+  //     let w = 400;
+  //     let h = 500;
       // if (x <= e.clientX && e.clientX <= x + w && y <= e.clientY && e.clientY <= y + h) {
       //   parent.drawRect("red");
       // } else {
       //   parent.drawRect();
       // }
-    });
-  }
+  //   });
+  // }
 
-  drawRect(boundingBoxes: Array<BoundingBox>) {
-    this.context.beginPath();
-    boundingBoxes.forEach((boundingBox: BoundingBox) => {
-        this.context.rect(boundingBox.Left, boundingBox.Top, boundingBox.Width, boundingBox.Height);
-    });
+  // drawRect(boundingBoxes: Array<BoundingBox>) {
+  //   this.context.beginPath();
+  //   boundingBoxes.forEach((boundingBox: BoundingBox) => {
+  //       this.context.rect(boundingBox.Left, boundingBox.Top, boundingBox.Width, boundingBox.Height);
+  //   });
     // this.context.rect(206,1960,380,39);
-    this.context.lineWidth = 2;
-    this.context.strokeStyle = "#2F72FF";
-    this.context.stroke();
-  }
+  //   this.context.lineWidth = 2;
+  //   this.context.strokeStyle = "#2F72FF";
+  //   this.context.stroke();
+  // }
 
   clear() {
     this.showPdf = false;
     this.predictionForm.reset();
     this.predictionResult = null;
+  }
+
+  confirm() {
+    // this.predictionResult = Object.assign({}, this.predictionResult)
+    this.predictionResult.CompanyCode = this.CompanyCode.value;
+    this.predictionResult.Address = this.Address.value;
+    this.predictionResult.VendorName = this.VendorName.value;
+    this.predictionResult.VendorCode = this.VendorCode.value;
+    this.predictionResult.InvoiceNumber = this.InvoiceNumber.value;
+    this.predictionResult.InvoiceCurrency = this.InvoiceCurrency.value;
+    this.predictionResult.InvoiceDate = this.InvoiceDate.value;
+    this.predictionResult.NetAmount = this.NetAmount.value;
+    this.predictionResult.VatCode = this.VatCode.value;
+    this.predictionService.Save(this.predictionResult).subscribe(() => {
+      
+    });
+  }
+
+  get CompanyCode() {
+    return this.predictionForm.get('COMPANYCODE') as FormControl;
+  }
+
+  get Address() {
+    return this.predictionForm.get('ADDRESS') as FormControl;
+  }
+
+  get VendorName() {
+    return this.predictionForm.get('VENDORNAME') as FormControl;
+  }
+
+  get VendorCode() {
+    return this.predictionForm.get('VENDORCODE') as FormControl;
+  }
+
+  get InvoiceNumber() {
+    return this.predictionForm.get('INVOICENUMBER') as FormControl;
+  }
+
+  get InvoiceCurrency() {
+    return this.predictionForm.get('INVOICECURRENCY') as FormControl;
+  }
+
+  get InvoiceDate() {
+    return this.predictionForm.get('INVOICEDATE') as FormControl;
+  }
+
+  get NetAmount() {
+    return this.predictionForm.get('NETAMOUNT') as FormControl;
+  }
+
+  get VatCode() {
+    return this.predictionForm.get('VATCODE') as FormControl;
   }
 }

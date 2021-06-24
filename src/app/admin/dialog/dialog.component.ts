@@ -8,15 +8,14 @@ import {MAT_DIALOG_DATA} from '@angular/material/dialog';
     styleUrls: ['./dialog.component.scss']
   })
 export class DialogComponent {
-  constructor(public dialogRef: MatDialogRef<DialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-      console.log(this.data);
-  }
+
+  constructor(public dialogRef: MatDialogRef<DialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) { }
+
   reject(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   confirm(): void {
-    this.dialogRef.close();
+    this.dialogRef.close({ result: true, value: this.data.value });
   }
 }

@@ -13,22 +13,28 @@ export class PredictionService {
     constructor(protected readonly httpClient: HttpClient, protected readonly appConfig: ConfigService) {}
 
     protected get _baseUrl(): string {
-        const endPoint = 'api/Prediction';
         // Le remoteServiceBaseUrl est défini dans mon fichier de configuration
-        return `${this.appConfig.apiUrl}/${endPoint}`;
+        return `${this.appConfig.apiUrl}/api/Prediction`;
     }
 
       //#region READ
   // Retrieves a resource
-  public MakePrediction(): Observable<PredictionResult> {
-    const url = `${this._baseUrl}`;
-    return this.httpClient.get<PredictionResult>(url).pipe(map((data: any) => data));
+  // public MakePrediion(): Observable<PredictionResult> {
+  //   const url = `${this._baseUrl}`;
+  //   return this.httpClient.get<PredictionResult>(url).pipe(map((data: any) => data));
+  // }
+
+  //#region SAVE
+  public MakePrediction(item: FormData): Observable<any> {
+    return this.httpClient
+        .post(this._baseUrl, item)
+        .pipe(map((data: any) => data));
   }
 
-    //#region SAVE
-    public Save(item: FormData): Observable<any> {
-        return this.httpClient
-          .post(this._baseUrl, item)
-          .pipe(map((data: any) => data));
-    }
+  //#region SAVE
+  public Save(item: PredictionResult): Observable<any> {
+      return this.httpClient
+        .post(`${this._baseUrl}/${'Save'}`, item)
+        .pipe(map((data: any) => data));
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, HostListener, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   MatDialog,
@@ -18,13 +18,24 @@ const enum Status {
   templateUrl: './resizable-draggable.component.html',
   styleUrls: ['./resizable-draggable.component.scss']
 })
-export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
+export class ResizableDraggableComponent implements OnInit{ // , AfterViewInit
   @Input('width') public width: number;
   @Input('height') public height: number;
   @Input('left') public left: number;
   @Input('top') public top: number;
   @Input('prop') public prop: string;
   @Input('value') public value: string;
+
+  @Input('data') public data: any;
+
+  @Output() modalResult: EventEmitter<any> = new EventEmitter<any>();
+
+  public percentLeft: number;
+  public percentTop: number;
+  public percentWidth: number;
+  public percentHeight: number;
+
+
   px: number;
   py: number;
   minArea: number;
@@ -41,6 +52,18 @@ export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
     this.draggingCorner = false;
     this.draggingWindow = false;
     this.minArea = 20000;
+  }
+
+  ngOnInit() {
+    this.coordinateInPercent();
+    console.log(this.data);
+  }
+
+  coordinateInPercent() {
+    this.percentLeft = this.left * 0.061;
+    this.percentTop = this.top * 0.0428;
+    this.percentWidth = this.width * 0.061;
+    this.percentHeight = this.height * 0.0428;
   }
 
   area() {
@@ -64,6 +87,7 @@ export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
     this.top += offsetY;
     this.px = event.clientX;
     this.py = event.clientY;
+    this.coordinateInPercent();
   }
 
   topLeftResize(offsetX: number, offsetY: number) {
@@ -71,23 +95,27 @@ export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
     this.top += offsetY;
     this.width -= offsetX;
     this.height -= offsetY;
+    this.coordinateInPercent();
   }
 
   topRightResize(offsetX: number, offsetY: number) {
     this.top += offsetY;
     this.width += offsetX;
     this.height -= offsetY;
+    this.coordinateInPercent();
   }
 
   bottomLeftResize(offsetX: number, offsetY: number) {
     this.left += offsetX;
     this.width -= offsetX;
     this.height += offsetY;
+    this.coordinateInPercent();
   }
 
   bottomRightResize(offsetX: number, offsetY: number) {
     this.width += offsetX;
     this.height += offsetY;
+    this.coordinateInPercent();
   }
 
   // tslint:disable-next-line:ban-types
@@ -96,6 +124,7 @@ export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
     this.px = event.clientX;
     this.py = event.clientY;
     this.resizer = resizer;
+    this.coordinateInPercent();
     event.preventDefault();
     event.stopPropagation();
   }
@@ -120,6 +149,7 @@ export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
         this.top = lastY;
         this.width = pWidth;
         this.height = pHeight;
+        this.coordinateInPercent();
     }
     this.px = event.clientX;
     this.py = event.clientY;
@@ -135,11 +165,17 @@ export class ResizableDraggableComponent  { // implements OnInit, AfterViewInit
   dialog(): void {
     this.simpleDialog = this.dialogModel.open(DialogComponent,
       {
+        // width: '350px',
         data: {
           prop: this.prop,
           value: this.value,
         }
       });
+    this.simpleDialog.afterClosed().subscribe(data => {
+      this.modalResult.emit({prop: this.prop, dataResult: data.result, dataValue: data.value, value: this.value});
+    });
+    // const dialogSubmitSubscription = this.simpleDialog.componentInstance.submitClicked.subscribe(result => {
+    //   dialogSubmitSubscription.unsubscribe();
+    // });
   }
-
 }
