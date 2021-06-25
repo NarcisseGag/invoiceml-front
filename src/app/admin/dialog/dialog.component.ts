@@ -12,7 +12,7 @@ export class DialogComponent {
   constructor(public dialogRef: MatDialogRef<DialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   reject(): void {
-    this.dialogRef.close(false);
+    this.dialogRef.close({ result: false, value: null });
   }
 
   confirm(): void {

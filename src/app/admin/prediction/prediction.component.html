@@ -5,7 +5,7 @@
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <ul class="breadcrumb breadcrumb-style ">
             <li class="breadcrumb-item">
-              <h4 class="page-title">Prediction List</h4>
+              <h4 class="page-title">Prediction</h4>
             </li>
             <li class="breadcrumb-item bcrumb-1">
               <a href="#" onClick="return false;">
@@ -27,7 +27,7 @@
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                         <mat-form-field class="example-full-width" appearance="outline">
                           <mat-label>Company code</mat-label>
-                          <input matInput formControlName="COMPANYCODE" required #companyCodeStartElement>
+                          <input matInput formControlName="COMPANYCODE" #companyCodeStartElement>
                         </mat-form-field>
                       </div>
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
@@ -95,7 +95,8 @@
                     </div>
                     <div class="row">
                       <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
-                        <button class="mr-3" (click)="confirm()" mat-raised-button color="primary">Confirm</button>
+                        <button (click)="confirm(false)" class="btn btn-outline-info mr-3">Save</button>
+                        <button (click)="confirm(true)" class="btn btn-outline-success mr-3">Confirm</button>
                         <button (click)="clear()" type="button" mat-button>Reset</button>
                       </div>
                     </div>
@@ -130,8 +131,8 @@
           <!-- <ng-template #template let-option='option' [data]="option.data"></ng-template>
           <ng-container #vc></ng-container> -->
 
-          <div class="box-container" *ngIf="predictionResult && predictionResult.BoundingBoxes">
-            <ng-container *ngFor="let item of predictionResult.BoundingBoxes | keyvalue">
+          <div class="box-container" *ngIf="predictionResult && predictionResult.BoundingBoxesDict">
+            <ng-container *ngFor="let item of predictionResult.BoundingBoxesDict | keyvalue">
               <app-resizable-draggable
                 [width]="item.value['Width']"
                 [height]="item.value['Height']"

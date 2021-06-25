@@ -27,14 +27,26 @@ export class PredictionService {
   //#region SAVE
   public MakePrediction(item: FormData): Observable<any> {
     return this.httpClient
-        .post(this._baseUrl, item)
+        .post(`${this._baseUrl}/${'Predict'}`, item)
         .pipe(map((data: any) => data));
   }
 
   //#region SAVE
   public Save(item: PredictionResult): Observable<any> {
       return this.httpClient
-        .post(`${this._baseUrl}/${'Save'}`, item)
+        .put(`${this._baseUrl}/${'Save'}`, item)
+        .pipe(map((data: any) => data));
+  }
+
+  public Delete(id: number): Observable<any> {
+    return this.httpClient
+        .delete(`${this._baseUrl}/${'Delete'}/${id}`)
+        .pipe(map((data: any) => data));
+  }
+
+  public GetAll(): Observable<any> {
+    return this.httpClient
+        .get<PredictionResult[]>(this._baseUrl)
         .pipe(map((data: any) => data));
   }
 }

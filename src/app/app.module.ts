@@ -6,7 +6,8 @@ import { PredictionComponent } from './admin/prediction/prediction.component';
 import { PredictionListComponent } from './admin/prediction-list/prediction-list.component';
 import { ResizableDraggableComponent } from './admin/resizable-draggable/resizable-draggable.component';
 import { DialogComponent } from './admin/dialog/dialog.component';
-
+import { DeleteDialogComponent } from './admin/delete/delete.component';
+import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
@@ -36,6 +37,11 @@ import {
 } from '@angular/common/http';
 import { DndDirective } from './directives/dnd.directive';
 import { PredictionService } from './service/prediction.service';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
@@ -59,6 +65,7 @@ export function createTranslateLoader(http: HttpClient): any {
     PredictionListComponent,
     ResizableDraggableComponent,
     DialogComponent,
+    DeleteDialogComponent,
     DndDirective
   ],
   imports: [
@@ -68,6 +75,7 @@ export function createTranslateLoader(http: HttpClient): any {
     HttpClientModule,
     PerfectScrollbarModule,
     ClickOutsideModule,
+    MatDialogModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -75,7 +83,11 @@ export function createTranslateLoader(http: HttpClient): any {
         deps: [HttpClient],
       },
     }),
-
+    MatTableModule,
+    MatTabsModule,
+    MatMenuModule,
+    MatSnackBarModule,
+    MatPaginatorModule,
     // core & shared
     CoreModule,
     SharedModule,

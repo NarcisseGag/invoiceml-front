@@ -172,10 +172,9 @@ export class ResizableDraggableComponent implements OnInit{ // , AfterViewInit
         }
       });
     this.simpleDialog.afterClosed().subscribe(data => {
-      this.modalResult.emit({prop: this.prop, dataResult: data.result, dataValue: data.value, value: this.value});
+      if (data) {
+        this.modalResult.emit({prop: this.prop, dataResult: data.result, dataValue: data.value, value: this.value});
+      }
     });
-    // const dialogSubmitSubscription = this.simpleDialog.componentInstance.submitClicked.subscribe(result => {
-    //   dialogSubmitSubscription.unsubscribe();
-    // });
   }
 }

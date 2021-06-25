@@ -1,8 +1,11 @@
 import { HttpEventType } from '@angular/common/http';
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
 import 'leader-line';
 import { BoundingBox } from 'src/app/models/bounding-box';
+import { PredictionConfirm } from 'src/app/models/prediction-confirm';
 import { PredictionResult } from 'src/app/models/prediction-result';
 import { PredictionService } from 'src/app/service/prediction.service';
 import { environment } from 'src/environments/environment';
@@ -13,28 +16,24 @@ declare let LeaderLine: any;
   templateUrl: './prediction.component.html',
   styleUrls: ['./prediction.component.scss']
 })
-export class PredictionComponent { //  implements AfterViewInit
+export class PredictionComponent implements OnInit { //  implements AfterViewInit
   @ViewChild("fileDropRef", { static: false }) fileDropEl: ElementRef;
   files: any[] = [];
   showPdf = false;
 
 
-  @ViewChild("companyCodeLayer", { static: false }) companyCodeLayerCanvas: ElementRef;
-  private context: CanvasRenderingContext2D;
-  private companyCodeLayerCanvasElement: any;
-
   public imgWidth: number;
   public imgHeight: number;
   public url: string;
   public image;
+  id: number | string;
+  updateMode: boolean;
 
   public predictionResult: PredictionResult;
+  public predictionConfirm: PredictionConfirm;
 
   @ViewChild('companyCodeStartElement', { read: ElementRef }) companyCodeStartElement: ElementRef;
   @ViewChild('companyCodeEndElement', { read: ElementRef }) companyCodeEndElement: ElementRef;
-
-  @ViewChild('template', { read: TemplateRef }) _template: TemplateRef<any>;
-  @ViewChild('vc', {read: ViewContainerRef}) vc: ViewContainerRef;
 
   // ngAfterViewInit() {
   //    const line = new LeaderLine(this.companyCodeStartElement.nativeElement, this.companyCodeEndElement.nativeElement);
@@ -45,15 +44,23 @@ export class PredictionComponent { //  implements AfterViewInit
 
   // Form 1
   predictionForm: FormGroup;
+  predictionConfirmFormGroup: FormGroup;
   hide = true;
   hide2 = true;
   hide3 = true;
-  constructor(private fb: FormBuilder, private predictionService: PredictionService) {
+  constructor(private fb: FormBuilder, private route: ActivatedRoute,
+              private predictionService: PredictionService, private snackBar: MatSnackBar) {
+    this.id = this.route.snapshot.paramMap.get('id');
+    this.updateMode = this.id ? true : false;
     this.initPredictionForm();
   }
 
-  initPredictionForm() {
-    this.predictionForm = this.fb.group({
+  ngOnInit() {
+    this.predictionForm = this.initPredictionForm();
+  }
+
+  initPredictionForm(): FormGroup {
+    return this.fb.group({
       COMPANYCODE: [''],
       ADDRESS: [''],
       VENDORNAME: [''],
@@ -154,18 +161,13 @@ export class PredictionComponent { //  implements AfterViewInit
           this.InvoiceDate.patchValue(this.predictionResult.InvoiceDate);
           this.NetAmount.patchValue(this.predictionResult.NetAmount);
           this.VatCode.patchValue(this.predictionResult.VatCode);
-          // for (let key in this.predictionResult.BoundingBoxes) {
-          //   let value = this.predictionResult.BoundingBoxes[key];
-          //   const view = this._template.createEmbeddedView({option: value});
-          //   this.vc.insert(view);
-          // }
-    
+
+          this.predictionConfirmFormGroup = this.initPredictionForm();
         });
     }
 
     public createImgPath = (serverPath: string) => {
-      const u = `${environment.apiUrl}/${serverPath}`;
-      return u;
+      return `${environment.apiUrl}/${serverPath}`;
     }
 
     getModalResult(event) {
@@ -176,81 +178,41 @@ export class PredictionComponent { //  implements AfterViewInit
       }
     }
 
-  // openFile(event) {
-  //   this.showPdf = !this.showPdf;
-  //   this.predictionService.MakePrediction().subscribe((data: PredictionResult) => {
-  //     this.predictionResult = data;
-  //     this.CompanyCode.patchValue(this.predictionResult.CompanyCode);
-      // if (event.target.files && event.target.files[0]) {
-      //   const reader = new FileReader();
-      //   reader.readAsDataURL(event.target.files[0]);
-      //   reader.onload = event => {
-      //     this.image = new Image();
-      //     this.image.src = reader.result;
-      //     this.image.onload = () => {
-      //       this.imgWidth = this.image.width;
-      //       this.imgHeight = this.image.height;
-      //       this.showImage();
-      //       this.drawRect(data.BoundingBoxes);
-            
-      //     };
-      //   };
-      // }
-  //   });
-  // }
-
-  // showImage() {
-  //   this.companyCodeLayerCanvasElement = this.companyCodeLayerCanvas.nativeElement;
-  //   this.context = this.companyCodeLayerCanvasElement.getContext("2d");
-  //   this.companyCodeLayerCanvasElement.width = this.imgWidth;
-  //   this.companyCodeLayerCanvasElement.height = this.imgHeight;
-  //   this.context.drawImage(this.image, 0, 0, this.imgWidth, this.imgHeight);
-  //   const parent = this;
-  //   this.companyCodeLayerCanvasElement.addEventListener("mousemove", function(e) {
-  //     console.log("canvas click");
-  //     console.log(e);
-  //     let x = 200;
-  //     let y = 300; 
-  //     let w = 400;
-  //     let h = 500;
-      // if (x <= e.clientX && e.clientX <= x + w && y <= e.clientY && e.clientY <= y + h) {
-      //   parent.drawRect("red");
-      // } else {
-      //   parent.drawRect();
-      // }
-  //   });
-  // }
-
-  // drawRect(boundingBoxes: Array<BoundingBox>) {
-  //   this.context.beginPath();
-  //   boundingBoxes.forEach((boundingBox: BoundingBox) => {
-  //       this.context.rect(boundingBox.Left, boundingBox.Top, boundingBox.Width, boundingBox.Height);
-  //   });
-    // this.context.rect(206,1960,380,39);
-  //   this.context.lineWidth = 2;
-  //   this.context.strokeStyle = "#2F72FF";
-  //   this.context.stroke();
-  // }
-
   clear() {
     this.showPdf = false;
     this.predictionForm.reset();
     this.predictionResult = null;
   }
 
-  confirm() {
+  confirm(isConfirm: boolean) {
     // this.predictionResult = Object.assign({}, this.predictionResult)
-    this.predictionResult.CompanyCode = this.CompanyCode.value;
-    this.predictionResult.Address = this.Address.value;
-    this.predictionResult.VendorName = this.VendorName.value;
-    this.predictionResult.VendorCode = this.VendorCode.value;
-    this.predictionResult.InvoiceNumber = this.InvoiceNumber.value;
-    this.predictionResult.InvoiceCurrency = this.InvoiceCurrency.value;
-    this.predictionResult.InvoiceDate = this.InvoiceDate.value;
-    this.predictionResult.NetAmount = this.NetAmount.value;
-    this.predictionResult.VatCode = this.VatCode.value;
+    this.predictionResult.PredictionConfirm = new PredictionConfirm();
+    this.predictionResult.PredictionConfirm.CompanyCode = this.CompanyCode.value;
+    this.predictionResult.PredictionConfirm.Address = this.Address.value;
+    this.predictionResult.PredictionConfirm.VendorName = this.VendorName.value;
+    this.predictionResult.PredictionConfirm.VendorCode = this.VendorCode.value;
+    this.predictionResult.PredictionConfirm.InvoiceNumber = this.InvoiceNumber.value;
+    this.predictionResult.PredictionConfirm.InvoiceCurrency = this.InvoiceCurrency.value;
+    this.predictionResult.PredictionConfirm.InvoiceDate = this.InvoiceDate.value;
+    this.predictionResult.PredictionConfirm.NetAmount = this.NetAmount.value;
+    this.predictionResult.PredictionConfirm.VatCode = this.VatCode.value;
+    // this.predictionResult.PredictionConfirm.ConfirmedDate = isConfirm ? new Date() : null;
     this.predictionService.Save(this.predictionResult).subscribe(() => {
-      
+      this.showNotification(
+        'snackbar-success',
+        'Add Record Successfully...!!!',
+        'bottom',
+        'center'
+      );
+    });
+  }
+
+  showNotification(colorName, text, placementFrom, placementAlign) {
+    this.snackBar.open(text, '', {
+      duration: 2000,
+      verticalPosition: placementFrom,
+      horizontalPosition: placementAlign,
+      panelClass: colorName,
     });
   }
 
